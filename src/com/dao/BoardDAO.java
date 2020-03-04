@@ -96,4 +96,61 @@ public class BoardDAO {
 			}
 		} // end finally
 	}// end write
+	public void makeReply{int_root, int_step){
+			Connection con = null;
+			PreparedStatement pstmt = null;
+			try {
+					con = dataFactory.getConnection();
+					StringBuffer query = new StringBuffer();
+					query.append("UPDATE board SET repStep = repStep + 1");
+					query.append("WHERE repRoot = ? AND repStep > ? ");
+					pstmt = con.prepareStatement(query.toString());
+					pstmt.setInt(1, _root);
+					pstmt.setInt(2, _step);
+					pstmt.executeUpdate();
+			} catch(Exception e) {
+					e.printStackTrace();
+			} finally {
+					try {
+							if(pstmt!=null) pstmt.close();
+							if(con!=null) con.close();
+					} catch(SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+					}
+			}
+	}
+	// 답변 달기
+	public void reply(BoardDTO dto) {
+			makeReply(dto.getRepRoot(), dto.getRepStep());
+			Connection con = null;
+			PreparedStatement pstmt = null;
+			try {
+					con = dataFactory.getConnection();
+					StringBuffer query = new StringBuffer(); 
+					query.append("INSERT INTO board(num, title, author, ");
+					query.append("content, repRoot, repStep, repIndent, passwd)");
+					query.append("values( board_seq.nextVal, ?,?,?,?,?,?,?)");
+					pstmt = con.prepareStatement(query.toString());
+					pstmt.setString(1, dto.getTitle());
+					pstmt.setString(2, dto.getAuthor());
+					pstmt.setString(3, dto.getContent());
+					pstmt.setInt(4, dto.getRepRoot());
+					pstmt.setInt(5, dto.getRepStep() + 1);
+					pstmt.setInt(6, dto.getRepIndent() + 1);
+					pstmt.setString(7, dto.getPasswd());
+					pstmt.executeUpdate();
+			} catch(Exception e) {
+					e.printStackTrace();
+			} finally {
+						try {
+								if(pstmt!=null)pstmt.close();
+								if(con!=null)con.close();
+						} catch (SQLException e) {
+								//TODO Auto-generated catch block
+								e.printStackTrace();
+								
+						}
+			}
+	} //end reply
 }// end class
